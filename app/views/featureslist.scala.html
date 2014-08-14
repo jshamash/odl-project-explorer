@@ -1,0 +1,100 @@
+@(features: Seq[Feature])
+
+@main("OpenDaylight Project Explorer") {
+<!--main-->
+<div class="container" id="main">
+<div id="all-features-div">
+@for((feature,i) <- features.zipWithIndex){
+  @if(i%3 == 0){
+    <!--div class="row"-->
+      <div class="col-md-4 col-sm-6">
+          <div class="panel panel-default">
+              <div class="panel-heading"><a href="/features/details?feature=@feature.name" class="pull-right">Details @i</a><div class="panel-title">@feature.name</div><div class="panel-subtitle">@feature.version</div></div>
+              <div class="panel-body">
+                  <h4>Description</h4>
+                  <div>@feature.desc</div>
+                  <div class="feature-description">This is @feature.desc the latest</div>
+              </div>
+          </div>
+      </div>
+    <!--/div--><!--/row-->
+  }else{
+    <div class="col-md-4 col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading"><a href="/features/details?feature=@feature.name" class="pull-right">Details @i</a><div class="panel-title">@feature.name</div><div class="panel-subtitle">@feature.version</div></div>
+            <div class="panel-body">
+                <h4>Description</h4>
+                <div>@feature.desc</div>
+                <div class="feature-description">This is @feature.desc the latest</div>
+            </div>
+        </div>
+    </div>
+  }
+}
+</div>
+
+<div class="row">
+    <br>
+    <div class="clearfix"></div>
+    <hr>
+    <div class="col-md-3">Inocybe Technologies Inc.<br>Keep IT Simple</div>
+    <div class="col-md-3">&copy; 2005–2014 All Rights Reserved.</div>
+    <div class="col-md-3">53 Bellehumeur Suite 212, Gatineau, Quebec, J8T 6K5</div>
+    <div class="col-md-3">Phone 1-888-445-7505</div>
+    <hr>
+</div>
+</div><!--/main-->
+
+<!--login modal-->
+<div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h2 class="text-center"><img src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=100" class="img-circle"><br>Login</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form col-md-12 center-block">
+                    <div class="form-group">
+                        <input type="text" class="form-control input-lg" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control input-lg" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-lg btn-block">Sign In</button>
+                        <span class="pull-right"><a href="#">Register</a></span><span><a href="#">Need help?div </a></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--about modal-->
+<div id="aboutModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h2 class="text-center">About</h2>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 text-center">
+                    <a href="http://bootply.com/90113">This Bootstrap Template</a><br>was made with <i class="glyphicon glyphicon-heart"></i> by <a href="http://bootply.com/templates">Bootply</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
