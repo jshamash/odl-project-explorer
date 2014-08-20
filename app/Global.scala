@@ -20,5 +20,6 @@ object Global extends GlobalSettings{
     Logger.info("The crawler is started")
     val crawlerActor = Akka.system(app).actorOf(Props(new CrawlerActor()))
     Akka.system(app).scheduler.schedule(0 seconds, 5 minutes, crawlerActor, "crawl")
+    controllers.FeaturesController.setCrawler(crawlerActor)
   }
 }

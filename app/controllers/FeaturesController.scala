@@ -1,27 +1,34 @@
 package controllers
 
-import play.api._
-import play.api.mvc._
-import org.ops4j.pax.url.mvn.internal.config.MavenRepositoryURL
-import scala.xml.XML
-import models._
-import java.net.URL
-import scala.concurrent.{ExecutionException, Future}
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+import akka.actor.ActorRef
+import akka.pattern.ask
+import akka.util.Timeout
+import models.Feature
+import play.api.mvc.Action
+import play.api.mvc.Controller
 
 object FeaturesController extends Controller {
 
-  val crawlerActor: CrawlerActor = null
+  var crawler : ActorRef = null
+  implicit val timeout = Timeout(5 minutes)
 
   def list = Action { implicit request =>
-    Ok(views.html.featureslist(mapFeatures))
+    Ok(views.html.featureslist(getFeatures))
   }
 
   def details(name:String) = Action { implicit request =>
     Ok(views.html.featuresdetails(findFeature(name)))
   }
+  
+  def test = Action { implicit request =>
+    Ok(views.html.test( getFeatures.mkString(", ") ))
+  }
 
   def findFeature(feature: String): Feature = {
-    val f_array = mapFeatures()
+    val f_array = getFeatures 
     val elem = f_array.find{f => f.name == feature}
     if (elem.isDefined){
       elem.get
@@ -30,18 +37,13 @@ object FeaturesController extends Controller {
       null
     }
   }
-
-  // Should use the crawler here
-  @scala.deprecated
-  def mapFeatures(): Seq[Feature] = {
-    val xml = scala.xml.XML.load(new URL("http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/org/opendaylight/controller/base-features/1.4.2-SNAPSHOT/base-features-1.4.2-20140807.221612-474-features.xml"))
-    val feature = models.Features.fromXml(xml)
-    feature
+  
+  def setCrawler(actor : ActorRef) {
+    crawler = actor
   }
 
-  // TODO
-  def getFeatures(): Seq[Feature] = {
-    //val features = crawlerActor ! "getFeatures"
-    null
+  def getFeatures = {
+    val features = Await.result((crawler ? "getFeatures"), 5 minutes)
+    features.asInstanceOf[Seq[Feature]]
   }
 }
