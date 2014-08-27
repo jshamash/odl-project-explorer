@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, projects: List[String])(content: Html)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -21,7 +21,7 @@
     </head>
 
     <body >
-        @navigation()
+        @navigation(projects)
 
         @content
 

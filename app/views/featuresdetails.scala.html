@@ -9,5 +9,13 @@
   <div>@feature.name</div>
   <div>@feature.version</div>
   <div>@feature.desc</div>
+  <div>
+  	content:
+  	<ul>
+  		@for(f <- feature.content) {
+  			<li>@f</li>
+		} 
+  	</ul>
+  </div>
 </body>
 </html>

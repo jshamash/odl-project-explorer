@@ -15,16 +15,20 @@ object FeaturesController extends Controller {
   var crawler : ActorRef = null
   implicit val timeout = Timeout(5 minutes)
 
-  def list = Action { implicit request =>
-    Ok(views.html.featureslist(getFeatures))
+  def all = Action { implicit request =>
+    Ok(views.html.featureslist(getFeatures, getProjects))
   }
 
   def details(name:String) = Action { implicit request =>
     Ok(views.html.featuresdetails(findFeature(name)))
   }
   
+  def project(name: String) = Action { implicit request =>
+    Ok(views.html.featureslist(getProjectFeatures(name), getProjects))
+  }
+  
   def test = Action { implicit request =>
-    Ok(views.html.test( getFeatures.mkString(", ") ))
+    Ok(views.html.featureslist( getFeatures, getProjects))
   }
 
   def findFeature(feature: String): Feature = {
@@ -43,7 +47,17 @@ object FeaturesController extends Controller {
   }
 
   def getFeatures = {
-    val features = Await.result((crawler ? "getFeatures"), 5 minutes)
+    val features = Await.result((crawler ? "test"), 5 minutes)
     features.asInstanceOf[Seq[Feature]]
+  }
+  
+  def getProjectFeatures(name : String)= {
+    val features = Await.result((crawler ? Project(name)), 5 minutes)
+    features.asInstanceOf[Seq[Feature]]
+  }
+  
+  def getProjects = {
+    val projects = Await.result((crawler ? "getProjects"), 5 minutes)
+    projects.asInstanceOf[List[String]]
   }
 }

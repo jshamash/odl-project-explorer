@@ -9,7 +9,7 @@ import play.api.Logger
 object Global extends GlobalSettings{
 
   override def onStart(app: Application) {
-    val controllerPath = controllers.routes.FeaturesController.list.url
+    val controllerPath = controllers.routes.FeaturesController.all.url
     play.api.Play.mode(app) match {
       case play.api.Mode.Test => // do not schedule anything for Test
       case _ => crawlerDaemon(app)
