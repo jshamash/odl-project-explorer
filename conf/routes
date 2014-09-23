@@ -5,6 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index
 GET     /features/all               controllers.FeaturesController.all
+GET     /download	                controllers.DownloadController.index
 GET     /features/details           controllers.FeaturesController.details(feature: String)
 GET     /features                   controllers.FeaturesController.project(project: String)
 GET     /test                       controllers.FeaturesController.test
