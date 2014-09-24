@@ -15,7 +15,7 @@ object DownloadController extends Controller {
   implicit val timeout = Timeout(5 minutes)
 
   def index = Action { implicit request =>
-    Ok(views.html.downloadwidget)
+    Ok(views.html.downloadwidget())
   }
 
 }
