@@ -4,9 +4,11 @@
 <!--main-->
 <div class="container" id="main">
 <div id="all-features-div">
+<div class="row">
 @for((feature,i) <- features.zipWithIndex){
   @if(i%3 == 0){
-    <!--div class="row"-->
+     </div>
+     <div class="row">
       <div class="col-md-4 col-sm-6">
           <div class="panel panel-default">
               <div class="panel-heading"><a href="/features/details?feature=@feature.name" class="pull-right">Details @i</a><div class="panel-title">@feature.name</div><div class="panel-subtitle">@feature.version</div></div>
@@ -17,7 +19,6 @@
               </div>
           </div>
       </div>
-    <!--</div>/row-->
   }else{
     <div class="col-md-4 col-sm-6">
         <div class="panel panel-default">
