@@ -47,8 +47,7 @@ object FeaturesController extends Controller {
   }
 
   def getFeatures = {
-    val features = Await.result((crawler ? "test"), 5 minutes)
-    features.asInstanceOf[Seq[Feature]]
+    Await.result((crawler ? "test").mapTo[List[Feature]], 5 minutes)
   }
   
   def getProjectFeatures(name : String)= {

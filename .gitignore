@@ -16,3 +16,4 @@ dist
 
 *.class
 *.log
+/bin/

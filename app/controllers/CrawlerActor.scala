@@ -20,21 +20,25 @@ import org.eclipse.aether.transport.http.HttpTransporterFactory
 import akka.actor.Actor
 import akka.actor.actorRef2Scala
 import play.api.Logger
-import models.Repositories
+import models.{Feature, Repository, Repositories}
 
 case class Project(name: String)
 
 class CrawlerActor extends Actor {
-  var features: Seq[models.Feature] = Seq.empty[models.Feature]
+  var features: List[Feature] = List()
   var featuresPerProject : Map[String, Seq[models.Feature]] = Map.empty[String, Seq[models.Feature]]
 
   val repository = new RemoteRepository.Builder( "central", "default", "http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot" ).build()
   val repositories = List(repository).asJava
 
+  // Info about root feature file
+  val ROOT_FEATURE_GROUP = "org.opendaylight.integration"
+  val ROOT_FEATURE_ARTIFACT = "features-integration"
+
   def receive = {
     case "crawl" =>
       Logger.info("Crawl initiated.")
-      features = getLatestFeatures
+      features = getLatestFeatures2
       //println("Features: \n" + features)
     case "getFeatures" =>
       Logger.info("Received a getFeature message")
@@ -45,7 +49,7 @@ class CrawlerActor extends Actor {
       sender ! featuresPerProject(project)
     case "test" =>
       Logger.info("Testing crawler message")
-      sender ! getLatestFeatures2
+      sender ! getLatestFeatures
     case _      =>
       println("AKKA: unknown message received")
       Logger.info("The crawler received an unknown message")
@@ -87,13 +91,9 @@ class CrawlerActor extends Actor {
     val repoSystem : RepositorySystem = newRepositorySystem()
     val session : RepositorySystemSession = newSession(repoSystem)
 
-    // Root feature file
-    // TODO
-    /*
-    val group = "org.opendaylight.integration"
-    val artifact = "features-integration"
-    //val artifactToSearch = new DefaultArtifact( group, artifact,"features","xml",latestVersion(group,artifact),null )
-    val artifactToSearch = new DefaultArtifact( group, artifact,"features","xml","0.2.0-SNAPSHOT",null )
+    // Crawl the Root feature file
+
+    val artifactToSearch = new DefaultArtifact( ROOT_FEATURE_GROUP, ROOT_FEATURE_ARTIFACT,"features","xml",latestVersion(ROOT_FEATURE_GROUP,ROOT_FEATURE_ARTIFACT),null )
 
     val artifactRequest = new ArtifactRequest()
     artifactRequest.setArtifact( artifactToSearch )
@@ -103,8 +103,8 @@ class CrawlerActor extends Actor {
 
     val file = artifactResult.getArtifact().getFile()
     val xml = scala.xml.XML.load(new FileInputStream(file) )
-    */
-    val repos = Repositories.fromXml(Repositories.testXml)
+
+    val repos = Repositories.fromXml(xml)
     println("Repos : " + repos.mkString(", "))
     repos
   }
@@ -128,19 +128,16 @@ class CrawlerActor extends Actor {
     features
   }
 
-  // Temporary
-  def getLatestFeatures : Seq[models.Feature] = {
-    getFeatures("org.opendaylight.controller","base-features")
-  }
-
-  def getLatestFeatures2 = {
+  def getLatestFeatures = {
     val repoSystem : RepositorySystem = newRepositorySystem()
     val session : RepositorySystemSession = newSession(repoSystem)
 
     crawlRootFile.foreach(repo => {
       println(repo)
-      featuresPerProject += (repo.group -> getFeatures(repo.group, repo.artifact))
+      val newList = featuresPerProject.getOrElse(repo.group, List()) ++ getFeatures(repo.group, repo.artifact)
+      featuresPerProject += (repo.group -> newList)
     })
+    println("****Repo -> features map:****\n" + featuresPerProject.map{case (k,v) => k -> v.size})
 
     var allFeatures = Seq.empty[models.Feature]
     featuresPerProject foreach {
@@ -149,5 +146,46 @@ class CrawlerActor extends Actor {
     }
     println("allFeatures: "+ allFeatures.mkString(", "))
     allFeatures
+  }
+
+  /**
+   * Searches the artifact for features.xml, parses it, adds the features to the allfeatures, adds the repo -> features to featuresPerProject
+   * @param group
+   * @param artifact
+   */
+  def processFeatureFile(group: String, artifact: String, reposVisited: List[Repository]) {
+    if (!reposVisited.forall(r => r.group != group && r.artifact != artifact)) return
+
+    val repoSystem : RepositorySystem = newRepositorySystem()
+    val session : RepositorySystemSession = newSession(repoSystem)
+    val project = group.split("\\.")(2)
+
+    val artifactToSearch = new DefaultArtifact( group, artifact,"features","xml",latestVersion(group,artifact),null )
+
+    val artifactRequest = new ArtifactRequest()
+    artifactRequest.setArtifact( artifactToSearch )
+    artifactRequest.setRepositories( repositories )
+
+    val artifactResult = repoSystem.resolveArtifact( session, artifactRequest )
+
+    val file = artifactResult.getArtifact().getFile()
+    val xml = scala.xml.XML.load(new FileInputStream(file) )
+    val repos = Repositories.fromXml(xml)
+    val features = models.Features.fromXml(xml, project)
+    val toSearch = repos.filterNot(reposVisited.contains(_))
+
+    val newList = (featuresPerProject.getOrElse(group, List()) ++ features)
+    featuresPerProject += (group -> newList.distinct)
+
+    toSearch foreach { childRepo =>
+      processFeatureFile(childRepo.group, childRepo.artifact, reposVisited ++ toSearch)
+    }
+  }
+
+  def getLatestFeatures2 = {
+    processFeatureFile(ROOT_FEATURE_GROUP, ROOT_FEATURE_ARTIFACT, List())
+    featuresPerProject.values.foldLeft(List.empty[Feature]){ (allFeatures, features) =>
+        allFeatures ++ features
+    }.distinct
   }
 }
