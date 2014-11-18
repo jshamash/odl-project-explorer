@@ -23,7 +23,7 @@ case class Project(name: String)
 
 class CrawlerActor extends Actor {
   var features: List[Feature] = List()
-  var featuresPerProject : Map[String, Seq[models.Feature]] = Map.empty[String, Seq[models.Feature]]
+  var featuresPerProject : Map[String, List[Feature]] = Map.empty[String, List[Feature]]
 
   val repository = new RemoteRepository.Builder( "central", "default", "http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot" ).build()
   val repositories = List(repository).asJava
@@ -47,7 +47,7 @@ class CrawlerActor extends Actor {
     case "getProjects" =>
       sender ! featuresPerProject.keys.toList
     case Project(project) =>
-      sender ! featuresPerProject(project)
+      sender ! featuresPerProject.get(project)
     case _      =>
       println("AKKA: unknown message received")
       Logger.info("The crawler received an unknown message")

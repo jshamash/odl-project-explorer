@@ -1,14 +1,14 @@
 package controllers
 
-import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
-
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import models.Feature
-import play.api.mvc.Action
-import play.api.mvc.Controller
+import play.api.mvc.{Action, Controller}
+import play.api.mvc.Results
+
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
 
 object FeaturesController extends Controller {
 
@@ -20,26 +20,26 @@ object FeaturesController extends Controller {
   }
 
   def details(name:String) = Action { implicit request =>
-    Ok(views.html.featuresdetails(findFeature(name)))
+    findFeature(name) match {
+      case Some(feature) => Ok(views.html.featuresdetails(feature))
+      case None => Results.NotFound("Feature not found")
+    }
   }
   
   def project(name: String) = Action { implicit request =>
-    Ok(views.html.featureslist(getProjectFeatures(name), getProjects))
+    getProjectFeatures(name) match {
+      case Some(features) => Ok(views.html.featureslist(features, getProjects))
+      case None => Results.NotFound("Project not found")
+    }
   }
   
   def test = Action { implicit request =>
     Ok(views.html.featureslist( getFeatures, getProjects))
   }
 
-  def findFeature(feature: String): Feature = {
-    val f_array = getFeatures 
-    val elem = f_array.find{f => f.name == feature}
-    if (elem.isDefined){
-      elem.get
-    }
-    else {
-      null
-    }
+  def findFeature(feature: String): Option[Feature] = {
+    val features = getFeatures
+    features.find{f => f.name == feature}
   }
   
   def setCrawler(actor : ActorRef) {
@@ -51,12 +51,10 @@ object FeaturesController extends Controller {
   }
   
   def getProjectFeatures(name : String)= {
-    val features = Await.result((crawler ? Project(name)), 5 minutes)
-    features.asInstanceOf[Seq[Feature]]
+    Await.result((crawler ? Project(name)).mapTo[Option[List[Feature]]], 5 minutes)
   }
   
   def getProjects = {
-    val projects = Await.result((crawler ? "getProjects"), 5 minutes)
-    projects.asInstanceOf[List[String]]
+    Await.result((crawler ? "getProjects").mapTo[List[String]], 5 minutes)
   }
 }

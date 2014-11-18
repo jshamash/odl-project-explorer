@@ -3,12 +3,11 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
-GET     /features/all               controllers.FeaturesController.all
+GET     /                           controllers.FeaturesController.all
 GET     /download	                controllers.DownloadController.index
-GET     /features/details           controllers.FeaturesController.details(feature: String)
-GET     /features                   controllers.FeaturesController.project(project: String)
-GET     /test                       controllers.FeaturesController.test
+GET     /features/:feature           controllers.FeaturesController.details(feature: String)
+GET     /features                   controllers.FeaturesController.all
+GET     /projects/:project/features controllers.FeaturesController.project(project: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
