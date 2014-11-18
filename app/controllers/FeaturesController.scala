@@ -47,7 +47,7 @@ object FeaturesController extends Controller {
   }
 
   def getFeatures = {
-    Await.result((crawler ? "test").mapTo[List[Feature]], 5 minutes)
+    Await.result((crawler ? "getFeatures").mapTo[List[Feature]], 5 minutes)
   }
   
   def getProjectFeatures(name : String)= {

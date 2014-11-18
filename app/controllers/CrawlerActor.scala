@@ -1,26 +1,23 @@
 package controllers
 
 import java.io.FileInputStream
-import scala.collection.JavaConverters.seqAsJavaListConverter
+
+import akka.actor.{Actor, actorRef2Scala}
+import models.{Features, Feature, Repositories, Repository}
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils
-import org.eclipse.aether.DefaultRepositorySystemSession
-import org.eclipse.aether.RepositorySystem
-import org.eclipse.aether.RepositorySystemSession
+import org.eclipse.aether.{DefaultRepositorySystemSession, RepositorySystem, RepositorySystemSession}
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
 import org.eclipse.aether.impl.DefaultServiceLocator
-import org.eclipse.aether.repository.LocalRepository
-import org.eclipse.aether.repository.RemoteRepository
-import org.eclipse.aether.resolution.ArtifactRequest
-import org.eclipse.aether.resolution.VersionRangeRequest
+import org.eclipse.aether.repository.{LocalRepository, RemoteRepository}
+import org.eclipse.aether.resolution.{ArtifactRequest, VersionRangeRequest}
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory
 import org.eclipse.aether.spi.connector.transport.TransporterFactory
 import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
-import akka.actor.Actor
-import akka.actor.actorRef2Scala
 import play.api.Logger
-import models.{Feature, Repository, Repositories}
+
+import scala.collection.JavaConverters.seqAsJavaListConverter
 
 case class Project(name: String)
 
@@ -38,8 +35,12 @@ class CrawlerActor extends Actor {
   def receive = {
     case "crawl" =>
       Logger.info("Crawl initiated.")
-      features = getLatestFeatures2
-      //println("Features: \n" + features)
+      features = crawl(parse(ROOT_FEATURE_GROUP, ROOT_FEATURE_ARTIFACT)).distinct
+      featuresPerProject = features.foldLeft(Map.empty[String, List[Feature]]){ (map, feature) =>
+        val features = map.getOrElse(feature.project, List())
+        map + (feature.project -> (feature :: features))
+      }
+      println("Features: \n" + features)
     case "getFeatures" =>
       Logger.info("Received a getFeature message")
       sender ! features
@@ -47,9 +48,6 @@ class CrawlerActor extends Actor {
       sender ! featuresPerProject.keys.toList
     case Project(project) =>
       sender ! featuresPerProject(project)
-    case "test" =>
-      Logger.info("Testing crawler message")
-      sender ! getLatestFeatures
     case _      =>
       println("AKKA: unknown message received")
       Logger.info("The crawler received an unknown message")
@@ -87,74 +85,10 @@ class CrawlerActor extends Actor {
     newestVersion.toString
   }
 
-  def crawlRootFile = {
-    val repoSystem : RepositorySystem = newRepositorySystem()
-    val session : RepositorySystemSession = newSession(repoSystem)
+  type FileInfo = (List[Repository], List[Feature])
 
-    // Crawl the Root feature file
-
-    val artifactToSearch = new DefaultArtifact( ROOT_FEATURE_GROUP, ROOT_FEATURE_ARTIFACT,"features","xml",latestVersion(ROOT_FEATURE_GROUP,ROOT_FEATURE_ARTIFACT),null )
-
-    val artifactRequest = new ArtifactRequest()
-    artifactRequest.setArtifact( artifactToSearch )
-    artifactRequest.setRepositories( repositories )
-
-    val artifactResult = repoSystem.resolveArtifact( session, artifactRequest )
-
-    val file = artifactResult.getArtifact().getFile()
-    val xml = scala.xml.XML.load(new FileInputStream(file) )
-
-    val repos = Repositories.fromXml(xml)
-    println("Repos : " + repos.mkString(", "))
-    repos
-  }
-
-  def getFeatures(group : String, artifact : String) : Seq[models.Feature] = {
-    val repoSystem : RepositorySystem = newRepositorySystem()
-    val session : RepositorySystemSession = newSession(repoSystem)
-    val project = group.split("\\.")(2)
-
-    val artifactToSearch = new DefaultArtifact( group, artifact,"features","xml",latestVersion(group,artifact),null )
-
-    val artifactRequest = new ArtifactRequest()
-    artifactRequest.setArtifact( artifactToSearch )
-    artifactRequest.setRepositories( repositories )
-
-    val artifactResult = repoSystem.resolveArtifact( session, artifactRequest )
-
-    val file = artifactResult.getArtifact().getFile()
-    val xml = scala.xml.XML.load(new FileInputStream(file) )
-    val features = models.Features.fromXml(xml, project)
-    features
-  }
-
-  def getLatestFeatures = {
-    val repoSystem : RepositorySystem = newRepositorySystem()
-    val session : RepositorySystemSession = newSession(repoSystem)
-
-    crawlRootFile.foreach(repo => {
-      println(repo)
-      val newList = featuresPerProject.getOrElse(repo.group, List()) ++ getFeatures(repo.group, repo.artifact)
-      featuresPerProject += (repo.group -> newList)
-    })
-    println("****Repo -> features map:****\n" + featuresPerProject.map{case (k,v) => k -> v.size})
-
-    var allFeatures = Seq.empty[models.Feature]
-    featuresPerProject foreach {
-      case (project, features) =>
-        allFeatures = allFeatures ++ features
-    }
-    println("allFeatures: "+ allFeatures.mkString(", "))
-    allFeatures
-  }
-
-  /**
-   * Searches the artifact for features.xml, parses it, adds the features to the allfeatures, adds the repo -> features to featuresPerProject
-   * @param group
-   * @param artifact
-   */
-  def processFeatureFile(group: String, artifact: String, reposVisited: List[Repository]) {
-    if (!reposVisited.forall(r => r.group != group && r.artifact != artifact)) return
+  def parse(group: String, artifact: String): FileInfo = {
+    println(s"Parsing $group.$artifact")
 
     val repoSystem : RepositorySystem = newRepositorySystem()
     val session : RepositorySystemSession = newSession(repoSystem)
@@ -171,21 +105,21 @@ class CrawlerActor extends Actor {
     val file = artifactResult.getArtifact().getFile()
     val xml = scala.xml.XML.load(new FileInputStream(file) )
     val repos = Repositories.fromXml(xml)
-    val features = models.Features.fromXml(xml, project)
-    val toSearch = repos.filterNot(reposVisited.contains(_))
+    val features = Features.fromXml(xml, project)
 
-    val newList = (featuresPerProject.getOrElse(group, List()) ++ features)
-    featuresPerProject += (group -> newList.distinct)
+    (repos, features)
+  }
 
-    toSearch foreach { childRepo =>
-      processFeatureFile(childRepo.group, childRepo.artifact, reposVisited ++ toSearch)
+  val crawl: (FileInfo => List[Feature]) = {
+
+    def helper(info: FileInfo, reposVisited: List[Repository]): List[Feature] = {
+      val (repos, features) = info
+      val unvisited = repos diff reposVisited
+      val parsed = unvisited.map(r => parse(r.group, r.artifact))
+      features ++ (parsed flatMap (helper(_, reposVisited ++ unvisited)))
     }
+        //def helper2(reposVisited: List[Repository]) = (helper(_, _, reposVisited)).tupled
+    helper(_, List())
   }
 
-  def getLatestFeatures2 = {
-    processFeatureFile(ROOT_FEATURE_GROUP, ROOT_FEATURE_ARTIFACT, List())
-    featuresPerProject.values.foldLeft(List.empty[Feature]){ (allFeatures, features) =>
-        allFeatures ++ features
-    }.distinct
-  }
 }
