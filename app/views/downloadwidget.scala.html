@@ -1,19 +1,7 @@
 @(
-base :List[(String,String,String)]= List(
-("controller","Clustered Controller","Provides basic clustered controller capability"),
-("dlux","Graphical User Interface","Basic GUI for use with OpenDaylight")
-),
-addons :List[(String,String,String)]= List(
-("aaa","Authentication and Authorization","The AAA component provides the ability to change the underlying Authorization and Authentication of OpenDaylight."),
-("bgpcep","BGP and PCEP","The BGP/PCEP component provides the ability to interact with BGP routers dynamically and compute the appropriate paths."),
-("sdni","Software Defined Networking Interface","SDNI provides the ability to have intercontroller communication using BGP in a federated environment."),
-("lisp","Software Defined Networking interface)","LISP Flow Mapping provides the ability to apply LISP on flows")
-),
-apps :List[(String,String,String)]= List(
-("defense4all","Defense4All","Defense 4 All is an external application that provides DDoS protection using SDN"),
-("l2switch","Layer 2 Switch","This Layer 2 switch provides basic Layer 2 Switching capability for OpenFlow-based devices"),
-("gbp","Group Based Policy","Group Based Policy allows applications to express policies which are rendered using low level renderers such as OpenFlow")
-)
+base :List[ODLProject],
+addons :List[ODLProject],
+apps :List[ODLProject]
 )
 <!--main-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -41,22 +29,22 @@ apps :List[(String,String,String)]= List(
     <h2>Base Features</h2>
     <p>Base features that are providing additional configuration of the controller</p>
     <div class="componentListHolder">
-            @for(component <- base)  {
+            @for(project <- base)  {
                 <div class="component" title="Click to flip">
                     <div class="componentFlip">
-                        <img src="@routes.Assets.at("images/projects/"+component._1+".png")" alt="More about '.$company[0].'" />
+                        <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
                         <div class="componentName">
-                            @component._2
+                            @project.name
                         </div>
                          <div class="componentDescription">
-                            @component._3
+                            @project.description
                         </div>
                     </div>
 
                     <div class="componentSelected">
                        <img class="componentImg" src="@routes.Assets.at("images/checkmark.png")" alt="More about '.$company[0].'" />
                        <div class="componentName">
-                            @component._2
+                            @project.name
                         </div>
                         <div class="componentDescription">
                         <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
@@ -72,25 +60,25 @@ apps :List[(String,String,String)]= List(
     <h2>Add-ons</h2>
     <p>These items are specific add-ons that you can add to the basic controller behavior to improve its functionalities</p>
     <div class="componentListHolder">
-            @for(component <- addons)  {
+            @for(project <- addons)  {
                 <div class="component" title="Click to flip">
                     <div class="componentFlip">
-                        <img src="@routes.Assets.at("images/projects/"+component._1+".png")" alt="More about '.$company[0].'" />
+                        <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
                         <div class="componentName">
-                            @component._2
+                            @project.name
                         </div>
-                         <div class="componentDescription">
-                            @component._3
+                        <div class="componentDescription">
+                            @project.description
                         </div>
                     </div>
 
                     <div class="componentSelected">
-                       <img class="componentImg" src="@routes.Assets.at("images/checkmark.png")" alt="More about '.$company[0].'" />
-                       <div class="componentName">
-                            @component._2
+                        <img class="componentImg" src="@routes.Assets.at("images/checkmark.png")" alt="More about '.$company[0].'" />
+                        <div class="componentName">
+                            @project.name
                         </div>
                         <div class="componentDescription">
-                        <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
+                            <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
                         </div>
                     </div>
                 </div>
@@ -105,29 +93,27 @@ apps :List[(String,String,String)]= List(
     <p>These applications are useful for opendaylight based use cases. However they usually will think that they are alone using the controller and as such will have behavior across all connected devices
     </p>
     <div class="componentListHolder">
-            @for(component <- apps)  {
+            @for(project <- apps)  {
                 <div class="component" title="Click to flip">
                     <div class="componentFlip">
-                        <img src="@routes.Assets.at("images/projects/"+component._1+".png")" alt="More about '.$company[0].'" />
+                        <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
                         <div class="componentName">
-                            @component._2
+                            @project.name
                         </div>
-                         <div class="componentDescription">
-                            @component._3
+                        <div class="componentDescription">
+                            @project.description
                         </div>
                     </div>
 
                     <div class="componentSelected">
-                       <img class="componentImg" src="@routes.Assets.at("images/checkmark.png")" alt="More about '.$company[0].'" />
-                       <div class="componentName">
-                            @component._2
+                        <img class="componentImg" src="@routes.Assets.at("images/checkmark.png")" alt="More about '.$company[0].'" />
+                        <div class="componentName">
+                            @project.name
                         </div>
                         <div class="componentDescription">
-                        <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
+                            <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
                         </div>
                     </div>
-
-
                 </div>
             }
 

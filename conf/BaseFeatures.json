@@ -1,0 +1,22 @@
+{
+  "projects":[
+    {
+      "name":"Graphical user interface",
+      "img":"dlux.png",
+      "description":"Basic GUI for use with opendaylight",
+      "features":[
+        "dlux-feature-1",
+        "dlux-feature-2"
+      ]
+    },
+    {
+      "name":"Clustered Controller",
+      "img":"controller.png",
+      "description":"Provides basic clustered controller capability",
+      "features":[
+        "controller-feature-1",
+        "controller-feature-2"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "projects":[
+    {
+      "name":"Authentication and Authorization",
+      "description":"The AAA component provides the ability to change the underlying Authorization and Authentication of OpenDaylight.",
+      "img":"aaa.png",
+      "features":[
+        "aaa-feature-1",
+        "aaa-feature-2"
+      ]
+    },
+    {
+      "name":"BGP and PCEP",
+      "description":"The BGP/PCEP component provides the ability to interact with BGP routers dynamically and compute the appropriate paths.",
+      "img":"bgpcep.png",
+      "features":[
+        "bgp-feature-1",
+        "bgp-feature-2"
+      ]
+    },
+    {
+      "name":"Software Defined Networking Interface",
+      "description":"SDNI provides the ability to have intercontroller communication using BGP in a federated environment.",
+      "img":"sdni.png",
+      "features":[
+        "sdni-feature-1",
+        "sdni-feature-2"
+      ]
+    },
+    {
+      "name":"Software Defined Networking interface)",
+      "description":"LISP Flow Mapping provides the ability to apply LISP on flows",
+      "img":"lisp.png",
+      "features":[
+        "lisp-feature-1",
+        "lisp-feature-2"
+      ]
+    }
+  ]
+}

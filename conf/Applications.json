@@ -1,0 +1,31 @@
+{
+  "projects":[
+    {
+      "name":"Defense4All",
+      "img":"defense4all.png",
+      "description":"Defense 4 All is an external application that provides DDoS protection using SDN",
+      "features":[
+        "Defense4All-feature-1",
+        "Defense4All-feature-2"
+      ]
+    },
+    {
+      "name":"Layer 2 Switch",
+      "img":"l2switch.png",
+      "description":"This Layer 2 switch provides basic Layer 2 Switching capability for OpenFlow-based devices",
+      "features":[
+        "l2switch-feature-1",
+        "l2switch-feature-2"
+      ]
+    },
+    {
+      "name":"Group Based Policy",
+      "img":"gbp.png",
+      "description":"Group Based Policy allows applications to express policies which are rendered using low level renderers such as OpenFlow",
+      "features":[
+        "gbp-feature-1",
+        "gbp-feature-2"
+      ]
+    }
+  ]
+}

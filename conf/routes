@@ -4,7 +4,7 @@
 
 # Home page
 GET     /                           controllers.FeaturesController.all
-GET     /download	                controllers.DownloadController.index
+GET     /download	                controllers.DownloadController.download
 GET     /features/:feature           controllers.FeaturesController.details(feature: String)
 GET     /features                   controllers.FeaturesController.all
 GET     /projects/:project/features controllers.FeaturesController.project(project: String)
