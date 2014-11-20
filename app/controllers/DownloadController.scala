@@ -24,15 +24,18 @@ object DownloadController extends Controller {
   }
 
   def loadProjects(filename: String) : Try[List[ODLProject]] = {
-    val is = Play.classloader.getResourceAsStream(filename);
+    val is = Play.classloader.getResourceAsStream(filename)
     val str = scala.io.Source.fromInputStream(is).mkString
     val json = Json.parse(str)
     Try((json \ "projects").as[List[ODLProject]])
   }
 
-  def selectFeatures = Action { request =>
-    val entity = request.body.asJson
-    println(entity.toString)
+  def selectFeatures = Action(parse.json) { request =>
+    val json = request.body
+    println(json)
+    val features = (json \ "features").asOpt[List[String]]
+
+    println(features)
     Ok("ok")
   }
 

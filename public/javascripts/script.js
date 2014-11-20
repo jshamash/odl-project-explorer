@@ -53,9 +53,14 @@ $(document).ready(function(){
 				});
 			}
 		});
-		var result = JSON.stringify({ featuresSelected : features });
-		$.post("/download", result);
-
+		var result = JSON.stringify({ features : features });
+		$.ajax
+		({
+			type: "POST",
+			url: '/download',
+			contentType: "application/json; charset=utf-8",
+			data: result
+		});
 	});
 
 });
