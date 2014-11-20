@@ -30,25 +30,36 @@ apps :List[ODLProject]
     <p>Base features that are providing additional configuration of the controller</p>
     <div class="componentListHolder">
             @for(project <- base)  {
-                <div class="component" title="Click to flip">
-                    <div class="componentFlip">
-                        <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
-                        <div class="componentName">
-                            @project.name
+                <div>
+                    <div class="component" title="Click to flip">
+                        <div class="componentFlip">
+                            <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
+                            <div class="componentName">
+                                @project.name
+                            </div>
+                             <div class="componentDescription">
+                                @project.description
+                            </div>
                         </div>
-                         <div class="componentDescription">
-                            @project.description
-                        </div>
-                    </div>
 
-                    <div class="componentSelected">
-                       <img class="componentImg" src="@routes.Assets.at("images/checkmark.png")" alt="More about '.$company[0].'" />
-                       <div class="componentName">
-                            @project.name
+                        <div class="componentSelected">
+                           <img class="componentImg" src="@routes.Assets.at("images/checkmark.png")" alt="More about '.$company[0].'" />
+                           <div class="componentName">
+                                @project.name
+                            </div>
+                            <div class="componentDescription">
+                            <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
+                            </div>
                         </div>
-                        <div class="componentDescription">
-                        <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
-                        </div>
+
+                    </div>
+                    <div class="featuresSelected">
+                        @for(feature <- project.coreFeatures) {
+                        <input type="checkbox" value="@feature.name" checked style="visibility: hidden;"/>
+                        }
+                        @for(feature <- project.optionalFeatures) {
+                        <input type="checkbox" value="@feature.name"><b>@feature.name</b><br /><p>@feature.description</p></input>
+                        }
                     </div>
                 </div>
             }
@@ -61,6 +72,7 @@ apps :List[ODLProject]
     <p>These items are specific add-ons that you can add to the basic controller behavior to improve its functionalities</p>
     <div class="componentListHolder">
             @for(project <- addons)  {
+        <div>
                 <div class="component" title="Click to flip">
                     <div class="componentFlip">
                         <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
@@ -81,6 +93,17 @@ apps :List[ODLProject]
                             <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
                         </div>
                     </div>
+                </div>
+
+                <div class="featuresSelected">
+                    @for(feature <- project.coreFeatures) {
+                    <input type="checkbox" value="@feature.name" checked style="visibility: hidden;"/>
+                    }
+                    @for(feature <- project.optionalFeatures) {
+                    <input type="checkbox" value="@feature.name"><b>@feature.name</b><br /><p>@feature.description</p></input>
+                    }
+                </div>
+
                 </div>
             }
 
@@ -94,6 +117,7 @@ apps :List[ODLProject]
     </p>
     <div class="componentListHolder">
             @for(project <- apps)  {
+        <div>
                 <div class="component" title="Click to flip">
                     <div class="componentFlip">
                         <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
@@ -114,7 +138,18 @@ apps :List[ODLProject]
                             <h2 style="text-align:center,text-weight:bold,font-size:16px">Selected</h2>
                         </div>
                     </div>
+
                 </div>
+
+                <div class="featuresSelected">
+                    @for(feature <- project.coreFeatures) {
+                    <input type="checkbox" value="@feature.name" checked style="visibility: hidden;"/>
+                    }
+                    @for(feature <- project.optionalFeatures) {
+                    <input type="checkbox" value="@feature.name"><b>@feature.name</b><br /><p>@feature.description</p></input>
+                    }
+                </div>
+            </div>
             }
 
         <div class="clear"></div>
@@ -123,7 +158,7 @@ apps :List[ODLProject]
 
 <div class="row">
     <div class="col-md-12 col-sm-12 text-center">
-        <input id="bigbutton" type="submit" value="Download" onclick="alert('coming shortly')" />
+        <input id="bigbutton" type="submit" value="Download" />
     </div>
 </div>
 <p></p>

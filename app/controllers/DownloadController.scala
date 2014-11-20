@@ -30,4 +30,10 @@ object DownloadController extends Controller {
     Try((json \ "projects").as[List[ODLProject]])
   }
 
+  def selectFeatures = Action { request =>
+    val entity = request.body.asJson
+    println(entity.toString)
+    Ok("ok")
+  }
+
 }
