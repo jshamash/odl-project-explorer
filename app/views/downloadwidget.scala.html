@@ -16,23 +16,29 @@ apps :List[ODLProject]
 <script type='text/javascript' src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
 <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
 <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.flip.min.js")"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/classie.js")"></script>
 <script type="text/javascript" src="@routes.Assets.at("javascripts/script.js")"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/modal.js")"></script>
+
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/theme.css")">
-
+<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/modal.css")">
 </head>
 
 <body>
 <h1>OpenDaylight Customized Distribution Download</h1>
 <p>Please select the features you want for your customized controller distribution:</p>
+<!-- All modals added here for the demo. You would of course just have one, dynamically created -->
+        
+       
 <div id="base">
     <h2>Base Features</h2>
     <p>Base features that are providing additional configuration of the controller</p>
     <div class="componentListHolder">
-            @for(project <- base)  {
-                <div>
+
+            @for((project, index) <- base.zipWithIndex)  {
                     <div class="component" title="Click to flip">
-                        <div class="componentFlip">
+                        <div class="componentFlip md-trigger" data-modal="modal-1-@index">
                             <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
                             <div class="componentName">
                                 @project.name
@@ -53,28 +59,43 @@ apps :List[ODLProject]
                         </div>
 
                     </div>
-                    <div class="featuresSelected">
-                        @for(feature <- project.coreFeatures) {
+                    <div class="md-modal md-effect-1" id="modal-1-@index">
+                        <div class="md-content">
+                            <h3>Choose your optional features</h3>
+                            <div>
+                                <p>Your project includes the following core features:</p>
+                                <ul>
+                                    @for(feature <- project.coreFeatures) {
+                                        <li>@feature.name</li>
+                                    }
+                                        
+                                </ul>
+                                <p>Please choose which options feature you want to include in the downloading progress</p>
+                                @for((feature, indexOpt) <- project.optionalFeatures.zipWithIndex) {
+                                    <label>Feature --- @feature.name&nbsp;&nbsp;</label><input type="checkbox" name="optionalFeature-1-@indexOpt" value="@feature.name" /><br />
+                                }
+                                @for(feature <- project.coreFeatures) {
                         <input type="checkbox" value="@feature.name" checked style="visibility: hidden;"/>
                         }
-                        @for(feature <- project.optionalFeatures) {
-                        <input type="checkbox" value="@feature.name"><b>@feature.name</b><br /><p>@feature.description</p></input>
-                        }
+                                <button class="md-close">Confirm and close</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+              
             }
-
+             <div class="md-overlay" id="overlay-1"></div><!-- the overlay element -->
         <div class="clear"></div>
     </div>
 </div>
+
 <div id="Addons">
     <h2>Add-ons</h2>
     <p>These items are specific add-ons that you can add to the basic controller behavior to improve its functionalities</p>
     <div class="componentListHolder">
-            @for(project <- addons)  {
-        <div>
+            @for((project, index) <- addons.zipWithIndex)  {
+       
                 <div class="component" title="Click to flip">
-                    <div class="componentFlip">
+                    <div class="componentFlip md-trigger" data-modal="modal-2-@index">
                         <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
                         <div class="componentName">
                             @project.name
@@ -94,20 +115,34 @@ apps :List[ODLProject]
                         </div>
                     </div>
                 </div>
-
-                <div class="featuresSelected">
-                    @for(feature <- project.coreFeatures) {
+                <div class="md-modal md-effect-1" id="modal-2-@index">
+                    <div class="md-content">
+                        <h3>Choose your optional features</h3>
+                        <div>
+                            <p>Your addon includes the following core features:</p>
+                            <ul>
+                                @for(feature <- project.coreFeatures) {
+                                    <li>@feature.name</li>
+                                }
+                                        
+                            </ul>
+                            <p>Please choose which options feature you want to include in the downloading progress</p>
+                            @for((feature, indexOpt) <- project.optionalFeatures.zipWithIndex) {
+                                <label>Feature --- @feature.name&nbsp;&nbsp;</label><input type="checkbox" name="optionalFeature-1-@indexOpt" value="@feature.name" /><br />
+                            }
+                            @for(feature <- project.coreFeatures) {
                     <input type="checkbox" value="@feature.name" checked style="visibility: hidden;"/>
                     }
-                    @for(feature <- project.optionalFeatures) {
-                    <input type="checkbox" value="@feature.name"><b>@feature.name</b><br /><p>@feature.description</p></input>
-                    }
+                            <button class="md-close">Confirm and close</button>
+                        </div>
+                    </div>
                 </div>
 
-                </div>
+
+                
             }
 
-
+<div class="md-overlay" id="overlay-2"></div><!-- the overlay element -->
         <div class="clear"></div>
     </div>
 </div>
@@ -116,10 +151,10 @@ apps :List[ODLProject]
     <p>These applications are useful for opendaylight based use cases. However they usually will think that they are alone using the controller and as such will have behavior across all connected devices
     </p>
     <div class="componentListHolder">
-            @for(project <- apps)  {
-        <div>
+            @for((project, index) <- apps.zipWithIndex)  {
+        
                 <div class="component" title="Click to flip">
-                    <div class="componentFlip">
+                    <div class="componentFlip md-trigger" data-modal="modal-3-@index">
                         <img src="@routes.Assets.at("images/projects/" + project.img)" alt="More about '.$company[0].'" />
                         <div class="componentName">
                             @project.name
@@ -140,18 +175,32 @@ apps :List[ODLProject]
                     </div>
 
                 </div>
-
-                <div class="featuresSelected">
-                    @for(feature <- project.coreFeatures) {
+                <div class="md-modal md-effect-1" id="modal-3-@index">
+                    <div class="md-content">
+                        <h3>Choose your optional features</h3>
+                        <div>
+                            <p>Your application includes the following core features:</p>
+                            <ul>
+                                @for(feature <- project.coreFeatures) {
+                                    <li>@feature.name</li>
+                                }
+                                        
+                            </ul>
+                            <p>Please choose which options feature you want to include in the downloading progress</p>
+                            @for((feature, indexOpt) <- project.optionalFeatures.zipWithIndex) {
+                                <label>Feature --- @feature.name&nbsp;&nbsp;</label><input type="checkbox" name="optionalFeature-1-@indexOpt" value="@feature.name" /><br />
+                            }
+                            @for(feature <- project.coreFeatures) {
                     <input type="checkbox" value="@feature.name" checked style="visibility: hidden;"/>
                     }
-                    @for(feature <- project.optionalFeatures) {
-                    <input type="checkbox" value="@feature.name"><b>@feature.name</b><br /><p>@feature.description</p></input>
-                    }
+                            <button class="md-close">Confirm and close</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            }
 
+            
+            }
+<div class="md-overlay" id="overlay-3"></div><!-- the overlay element -->
         <div class="clear"></div>
     </div>
 </div>
