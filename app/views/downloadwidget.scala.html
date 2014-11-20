@@ -4,29 +4,9 @@ addons :List[ODLProject],
 apps :List[ODLProject]
 )
 <!--main-->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>OpenDaylight Download Page</title>
-
-<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/styles.css")" />
-<script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-<script type='text/javascript' src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
-<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
-<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.flip.min.js")"></script>
-<script type="text/javascript" src="@routes.Assets.at("javascripts/classie.js")"></script>
-<script type="text/javascript" src="@routes.Assets.at("javascripts/script.js")"></script>
-<script type="text/javascript" src="@routes.Assets.at("javascripts/modal.js")"></script>
-
-<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/theme.css")">
-<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/modal.css")">
-</head>
-
-<body>
-<h1>OpenDaylight Customized Distribution Download</h1>
+@main("OpenDaylight Project Explorer", List()) {
+<div class="container" id="main">
+<!--<h1>OpenDaylight Customized Distribution Download</h1>-->
 <p>Please select the features you want for your customized controller distribution:</p>
 <!-- All modals added here for the demo. You would of course just have one, dynamically created -->
         
@@ -211,5 +191,5 @@ apps :List[ODLProject]
     </div>
 </div>
 <p></p>
-</body>
-</html>
+</div>
+}
