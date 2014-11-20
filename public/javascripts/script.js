@@ -16,6 +16,8 @@ $(document).ready(function(){
 			}
 		});
 		var result = JSON.stringify({ features : features });
+	        jQuery('<form action="download" method="post">' + '<input name="data" value=\'' + result +'\'/>' + '</form>').appendTo('body').submit().remove();
+	    /*
 		$.ajax
 		({
 			type: "POST",
@@ -23,5 +25,6 @@ $(document).ready(function(){
 			contentType: "application/json; charset=utf-8",
 			data: result
 		});
+		*/
 	});
 });

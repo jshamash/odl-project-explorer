@@ -36,8 +36,36 @@ object DownloadController extends Controller {
     Try((json \ "projects").as[List[ODLProject]])
   }
 
+  /*
   def selectFeatures = Action(parse.json) { request =>
     val json = request.body
+    val features = (json \ "features").asOpt[List[String]].getOrElse(List())
+
+    val config = Play.getExistingFile("resources/org.apache.karaf.features.cfg")
+    config match {
+      case Some(file) =>
+        val is = new FileInputStream(file)
+        val props = new Properties()
+        props.load(is)
+
+        val allFeatures = props.getProperty("featuresBoot") + (if (features.isEmpty) "" else "," + features.mkString(","))
+        props.setProperty("featuresBoot", allFeatures)
+        is.close()
+
+        props.store(new FileOutputStream(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1/etc/org.apache.karaf.features.cfg")), "Customized features config")
+        println("Starting zip...")
+        ZipUtil.pack(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1"), Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1.zip"))
+        println("done")
+        Ok.sendFile(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1.zip"))
+      case None =>
+        Logger.warn("Couldn't open config file")
+        InternalServerError("Couldn't open config file")
+    }
+    */
+  def selectFeatures = Action { request =>
+    val tetuhn = request.body.asFormUrlEncoded.getOrElse(Map.empty).map{ case (k,v) => k -> v.mkString }
+    
+    val json = Json.parse(tetuhn.getOrElse("data", ""))
     val features = (json \ "features").asOpt[List[String]].getOrElse(List())
 
     val config = Play.getExistingFile("resources/org.apache.karaf.features.cfg")
