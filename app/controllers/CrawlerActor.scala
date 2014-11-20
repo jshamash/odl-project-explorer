@@ -40,7 +40,7 @@ class CrawlerActor extends Actor {
         val features = map.getOrElse(feature.project, List())
         map + (feature.project -> (feature :: features))
       }
-      println("Features: \n" + features)
+      //println("Features: \n" + features)
     case "getFeatures" =>
       Logger.info("Received a getFeature message")
       sender ! features
@@ -49,7 +49,6 @@ class CrawlerActor extends Actor {
     case Project(project) =>
       sender ! featuresPerProject.get(project)
     case _      =>
-      println("AKKA: unknown message received")
       Logger.info("The crawler received an unknown message")
   }
 
@@ -88,7 +87,7 @@ class CrawlerActor extends Actor {
   type FileInfo = (List[Repository], List[Feature])
 
   def parse(group: String, artifact: String): FileInfo = {
-    println(s"Parsing $group.$artifact")
+    //println(s"Parsing $group.$artifact")
 
     val repoSystem : RepositorySystem = newRepositorySystem()
     val session : RepositorySystemSession = newSession(repoSystem)

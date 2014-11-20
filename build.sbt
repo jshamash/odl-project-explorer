@@ -35,6 +35,8 @@ libraryDependencies += "org.eclipse.aether" % "aether" % "1.0.0.v20140518"
 
 libraryDependencies += "org.apache.maven" % "maven-aether-provider" % "3.2.3"
 
+libraryDependencies += "org.zeroturnaround" % "zt-zip" % "1.8"
+
 
 libraryDependencies ++= Seq(
   jdbc,
