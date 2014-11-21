@@ -1,19 +1,22 @@
 package controllers
 
-import java.io.{File, FileOutputStream, OutputStream, FileInputStream}
-import java.nio.file.Files
-import java.util.{UUID, Properties}
+import java.io.{FileInputStream, FileOutputStream}
+import java.util.{Properties, UUID}
 
+import akka.actor.Props
 import models.MyJsonProtocol._
-import models.ODLProject
-import play.Logger
+import models.{Delete, ODLProject}
+import org.apache.commons.io._
+import org.zeroturnaround.zip.ZipUtil
 import play.api.Play
 import play.api.Play.current
+import play.api.libs.concurrent.Akka
 import play.api.libs.json._
 import play.api.mvc.{Action, Controller}
-import org.zeroturnaround.zip.ZipUtil
-import org.apache.commons.io._
+import workers.TempDestroyer
 
+import scala.concurrent.duration._
+import scala.language.postfixOps
 import scala.util.Try
 
 object DownloadController extends Controller {
@@ -44,18 +47,18 @@ object DownloadController extends Controller {
     val json = Json.parse(form.getOrElse("data", ""))
     val features = (json \ "features").asOpt[List[String]].getOrElse(List())
 
-
-    // Copy the config file to a unique location
+    // Create a unique temporary folder
     val copyID = UUID.randomUUID()
-    val copyFolder = Play.getFile(s"resources/temp/$copyID").mkdir()
+    Play.getFile(s"resources/temp/$copyID").mkdir()
 
+    // Copy config to temp folder
     println(s"Copying config to resources/temp/$copyID/config")
     val config = Play.getFile("resources/org.apache.karaf.features.cfg")
     val configCopy = Play.getFile(s"resources/temp/$copyID/config")
     FileUtils.copyFile(config, configCopy)
     println("done.")
 
-    // Copy distro to new folder
+    // Copy distro to temp folder
     println(s"Copying distro to resources/temp/$copyID/distro")
     val distro = Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1")
     val distroCopy = Play.getFile(s"resources/temp/$copyID/distro")
@@ -80,6 +83,12 @@ object DownloadController extends Controller {
     val zipFile = Play.getFile(s"resources/temp/$copyID/distribution-karaf-0.2.1-Helium-SR1.zip")
     ZipUtil.pack(distroCopy, zipFile)
     println("done")
+
+    // Delete temporary files in the future
+    implicit val context = Akka.system.dispatcher
+    val destroyer = Akka.system.actorOf(Props[TempDestroyer])
+    Akka.system.scheduler.scheduleOnce(1 hour){destroyer ! Delete(s"resources/temp/$copyID")}
+
     Ok.sendFile(zipFile)
   }
 
