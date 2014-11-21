@@ -37,6 +37,8 @@ libraryDependencies += "org.apache.maven" % "maven-aether-provider" % "3.2.3"
 
 libraryDependencies += "org.zeroturnaround" % "zt-zip" % "1.8"
 
+libraryDependencies += "commons-io" % "commons-io" % "2.4"
+
 
 libraryDependencies ++= Seq(
   jdbc,

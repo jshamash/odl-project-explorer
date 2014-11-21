@@ -76,7 +76,7 @@
       ]
     },
     {
-      "name":"Software Defined Networking interface)",
+      "name":"LISP Flow Mapping",
       "description":"LISP Flow Mapping provides the ability to apply LISP on flows",
       "img":"lisp.png",
       "coreFeatures":[

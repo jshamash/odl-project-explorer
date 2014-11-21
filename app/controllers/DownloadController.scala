@@ -1,7 +1,8 @@
 package controllers
 
 import java.io.{File, FileOutputStream, OutputStream, FileInputStream}
-import java.util.Properties
+import java.nio.file.Files
+import java.util.{UUID, Properties}
 
 import models.MyJsonProtocol._
 import models.ODLProject
@@ -11,6 +12,7 @@ import play.api.Play.current
 import play.api.libs.json._
 import play.api.mvc.{Action, Controller}
 import org.zeroturnaround.zip.ZipUtil
+import org.apache.commons.io._
 
 import scala.util.Try
 
@@ -36,58 +38,49 @@ object DownloadController extends Controller {
     Try((json \ "projects").as[List[ODLProject]])
   }
 
-  /*
-  def selectFeatures = Action(parse.json) { request =>
-    val json = request.body
-    val features = (json \ "features").asOpt[List[String]].getOrElse(List())
-
-    val config = Play.getExistingFile("resources/org.apache.karaf.features.cfg")
-    config match {
-      case Some(file) =>
-        val is = new FileInputStream(file)
-        val props = new Properties()
-        props.load(is)
-
-        val allFeatures = props.getProperty("featuresBoot") + (if (features.isEmpty) "" else "," + features.mkString(","))
-        props.setProperty("featuresBoot", allFeatures)
-        is.close()
-
-        props.store(new FileOutputStream(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1/etc/org.apache.karaf.features.cfg")), "Customized features config")
-        println("Starting zip...")
-        ZipUtil.pack(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1"), Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1.zip"))
-        println("done")
-        Ok.sendFile(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1.zip"))
-      case None =>
-        Logger.warn("Couldn't open config file")
-        InternalServerError("Couldn't open config file")
-    }
-    */
   def selectFeatures = Action { request =>
-    val tetuhn = request.body.asFormUrlEncoded.getOrElse(Map.empty).map{ case (k,v) => k -> v.mkString }
+    val form = request.body.asFormUrlEncoded.getOrElse(Map.empty).map{ case (k,v) => k -> v.mkString }
     
-    val json = Json.parse(tetuhn.getOrElse("data", ""))
+    val json = Json.parse(form.getOrElse("data", ""))
     val features = (json \ "features").asOpt[List[String]].getOrElse(List())
 
-    val config = Play.getExistingFile("resources/org.apache.karaf.features.cfg")
-    config match {
-      case Some(file) =>
-        val is = new FileInputStream(file)
-        val props = new Properties()
-        props.load(is)
 
-        val allFeatures = props.getProperty("featuresBoot") + (if (features.isEmpty) "" else "," + features.mkString(","))
-        props.setProperty("featuresBoot", allFeatures)
-        is.close()
+    // Copy the config file to a unique location
+    val copyID = UUID.randomUUID()
+    val copyFolder = Play.getFile(s"resources/temp/$copyID").mkdir()
 
-        props.store(new FileOutputStream(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1/etc/org.apache.karaf.features.cfg")), "Customized features config")
-        println("Starting zip...")
-        ZipUtil.pack(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1"), Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1.zip"))
-        println("done")
-        Ok.sendFile(Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1.zip"))
-      case None =>
-        Logger.warn("Couldn't open config file")
-        InternalServerError("Couldn't open config file")
-    }
+    println(s"Copying config to resources/temp/$copyID/config")
+    val config = Play.getFile("resources/org.apache.karaf.features.cfg")
+    val configCopy = Play.getFile(s"resources/temp/$copyID/config")
+    FileUtils.copyFile(config, configCopy)
+    println("done.")
+
+    // Copy distro to new folder
+    println(s"Copying distro to resources/temp/$copyID/distro")
+    val distro = Play.getFile("resources/distribution-karaf-0.2.1-Helium-SR1")
+    val distroCopy = Play.getFile(s"resources/temp/$copyID/distro")
+    FileUtils.copyDirectory(distro, distroCopy)
+    println("done.")
+
+    // Load properties of copied config file
+    val is = new FileInputStream(configCopy)
+    val props = new Properties()
+    props.load(is)
+    is.close()
+
+    // Edit the featuresBoot property
+    val allFeatures = props.getProperty("featuresBoot") + (if (features.isEmpty) "" else "," + features.mkString(","))
+    props.setProperty("featuresBoot", allFeatures)
+
+    // Copy new config into new distro
+    props.store(new FileOutputStream(Play.getFile(s"resources/temp/$copyID/distro/etc/org.apache.karaf.features.cfg")), "Customized features config")
+
+    // Zip the new distro
+    println("Starting zip...")
+    val zipFile = Play.getFile(s"resources/temp/$copyID/distribution-karaf-0.2.1-Helium-SR1.zip")
+    ZipUtil.pack(distroCopy, zipFile)
+    println("done")
+    Ok.sendFile(zipFile)
   }
 
 }

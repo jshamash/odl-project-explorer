@@ -16,6 +16,7 @@ import org.eclipse.aether.spi.connector.transport.TransporterFactory
 import org.eclipse.aether.transport.file.FileTransporterFactory
 import org.eclipse.aether.transport.http.HttpTransporterFactory
 import play.api.Logger
+import play.api.Play.current
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
 
@@ -25,7 +26,8 @@ class CrawlerActor extends Actor {
   var features: List[Feature] = List()
   var featuresPerProject : Map[String, List[Feature]] = Map.empty[String, List[Feature]]
 
-  val repository = new RemoteRepository.Builder( "central", "default", "http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot" ).build()
+  val repoUrl = current.configuration.getString("repo.url").get
+  val repository = new RemoteRepository.Builder( "central", "default", repoUrl).build()
   val repositories = List(repository).asJava
 
   // Info about root feature file
