@@ -9,7 +9,7 @@ object JsonModel extends DefaultJsonProtocol with SprayJsonSupport {
     override def write(obj: SubFeature): JsValue = JsString(s"/features/${obj.name}")
   }
 
-  implicit val featureJson = jsonFormat5(Feature.apply)
+  implicit val featureJson = jsonFormat6(Feature.apply)
   implicit val repoJson = jsonFormat3(Repository.apply)
 
   implicit object projectJson extends RootJsonFormat[Project] {
