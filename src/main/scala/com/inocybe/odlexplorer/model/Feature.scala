@@ -1,8 +1,18 @@
 package com.inocybe.odlexplorer.model
 
+import com.wordnik.swagger.annotations.{ApiModelProperty, ApiModel}
+
+import scala.annotation.meta.field
 import scala.xml.Node
 
-case class Feature(name: String, version: String, description: Option[String], bundles: List[String], subFeatures: List[SubFeature], configFiles: List[String] = List())
+@ApiModel(description = "A feature")
+case class Feature(
+                    @(ApiModelProperty @field)(value = "Feature name", required = true) name: String,
+                    @(ApiModelProperty @field)(value = "Feature version", required = true) version: String,
+                    @(ApiModelProperty @field)(value = "Feature description", required = false) description: Option[String],
+                    @(ApiModelProperty @field)(value = "The bundles contained in this feature", required = true) bundles: List[String],
+                    @(ApiModelProperty @field)(value = "The subfeatures of this feature", required = true, dataType = "array[string]") subFeatures: List[SubFeature],
+                    @(ApiModelProperty @field)(value = "Any config files associated with this feature", required = true) configFiles: List[String] = List())
 
 object Feature {
   def apply(xml: Node): Feature = {

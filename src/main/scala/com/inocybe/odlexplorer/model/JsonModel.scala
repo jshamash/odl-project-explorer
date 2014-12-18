@@ -23,7 +23,7 @@ object JsonModel extends DefaultJsonProtocol with SprayJsonSupport {
 
     override def write(obj: Project): JsValue = JsObject(
       "name" -> JsString(obj.name),
-      "features" -> JsString(obj.featuresUrl)
+      "featuresUrl" -> JsString(obj.featuresUrl)
     )
   }
 }

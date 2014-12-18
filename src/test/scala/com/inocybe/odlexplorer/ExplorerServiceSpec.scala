@@ -33,24 +33,26 @@ class ExplorerServiceSpec extends FlatSpec with ScalatestRouteTest with Matchers
 
   "ExplorerService" should "return a list of projects for GET /projects" in {
       Get("/projects") ~> route ~> check {
-        responseAs[List[Project]] === projects
+        responseAs[List[Project]] shouldBe projects
       }
     }
 
     it should "return all features on GET /features" in {
       Get("/features") ~> route ~> check {
-        responseAs[List[Feature]] === features
+        status shouldBe OK
+        responseAs[List[Feature]] shouldBe features
       }
     }
 
     it should "return a NotFound error when a resource doesn't exist" in {
+      Get("/projects/kermit") ~> sealRoute(route) ~> check {
+        status shouldBe NotFound
+      }
       Get("/projects/kermit/features") ~> sealRoute(route) ~> check {
-        status === NotFound
-        responseAs[String] === "key not found: kermit"
+        status shouldBe NotFound
       }
       Get("/features/kermit") ~> sealRoute(route) ~> check {
-        status === NotFound
-        responseAs[String] === "key not found: kermit"
+        status shouldBe NotFound
       }
     }
 
@@ -62,8 +64,8 @@ class ExplorerServiceSpec extends FlatSpec with ScalatestRouteTest with Matchers
 
     it should "return a MethodNotAllowed error for PUT requests to a path" in {
       Put("/projects") ~> sealRoute(route) ~> check {
-        status === MethodNotAllowed
-        responseAs[String] === "HTTP method not allowed, supported methods: GET"
+        status shouldBe MethodNotAllowed
+        responseAs[String] shouldBe "HTTP method not allowed, supported methods: GET"
       }
     }
 }
