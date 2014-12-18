@@ -2,9 +2,8 @@ package com.inocybe.odlexplorer
 
 import akka.actor.{Actor, Props}
 import com.inocybe.odlexplorer.Receptionist.Crawl
-import com.inocybe.odlexplorer.model.JsonModel._
-import com.inocybe.odlexplorer.model.{Feature, Project}
-import spray.http.StatusCodes
+import com.inocybe.odlexplorer.api.{FeatureService, ProjectService}
+import com.inocybe.odlexplorer.model.Feature
 import spray.routing._
 
 import scala.concurrent.duration._
@@ -34,37 +33,12 @@ class ExplorerServiceActor extends Actor with ExplorerService {
 
 trait ExplorerService extends HttpService {
 
-  implicit val exceptionHandler = ExceptionHandler {
-    case e: NoSuchElementException => complete(StatusCodes.NotFound, e.getMessage)
-  }
-
-  def myRoute(projectToFeatures: Map[String, Set[Feature]]) = {
+  def myRoute(projectToFeatures: Map[String, Set[Feature]]): Route = {
     val allFeatures = projectToFeatures.values.foldLeft(Set.empty[Feature])(_ ++ _)
 
-    path("projects") {
-      get {
-        complete { projectToFeatures.keys.map(Project).toList }
-      }
-    } ~
-    path("projects" / Segment) { project =>
-      get {
-        complete { Project(project) }
-      }
-    } ~
-    path("projects" / Segment / "features") { project =>
-      get {
-        complete { projectToFeatures(project) }
-      }
-    } ~
-    path("features") {
-      get {
-        complete { allFeatures }
-      }
-    } ~
-    path("features" / Segment) { feature =>
-      get {
-        complete { allFeatures.find(_.name == feature).getOrElse(throw new NoSuchElementException(s"key not found: $feature")) }
-      }
-    }
+    val projects = new ProjectService(actorRefFactory, projectToFeatures)
+    val features = new FeatureService(actorRefFactory, allFeatures)
+
+    projects.routes ~ features.routes
   }
 }

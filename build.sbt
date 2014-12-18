@@ -29,7 +29,8 @@ libraryDependencies ++= {
     "org.eclipse.aether"  %   "aether-transport-file"  % aetherV,
     "org.eclipse.aether"  %   "aether-transport-http"  % aetherV,
     "org.apache.maven"    %   "maven-aether-provider"  % "3.2.3",
-    "org.scala-lang.modules" %% "scala-async" % "0.9.2"
+    "org.scala-lang.modules" %% "scala-async" % "0.9.2",
+    "com.gettyimages"     %% "spray-swagger"  % "0.5.0"
   )
 }
 

@@ -6,7 +6,7 @@ import spray.json._
 object JsonModel extends DefaultJsonProtocol with SprayJsonSupport {
   implicit object subFeatureJson extends RootJsonFormat[SubFeature] {
     override def read(json: JsValue): SubFeature = deserializationError("SubFeature cannot be read")
-    override def write(obj: SubFeature): JsValue = JsString(s"/features/${obj.name}")
+    override def write(obj: SubFeature): JsValue = JsString(obj.url)
   }
 
   implicit val featureJson = jsonFormat6(Feature.apply)
@@ -23,7 +23,7 @@ object JsonModel extends DefaultJsonProtocol with SprayJsonSupport {
 
     override def write(obj: Project): JsValue = JsObject(
       "name" -> JsString(obj.name),
-      "features" -> JsString(s"/projects/${obj.name}/features")
+      "features" -> JsString(obj.featuresUrl)
     )
   }
 }
